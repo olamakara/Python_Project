@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 from Ship import Ship
@@ -10,6 +12,61 @@ border = pygame.Rect(0, 0, window_width, window_height)
 ship_width = 46
 ship_height = 46
 bullet_ratio = 25
+
+
+def collide(bullet_rect, ship_rect):
+    upp_left_bullet_x = bullet_rect.x
+    upp_left_bullet_y = bullet_rect.y
+    low_right_bullet_x = bullet_rect.x + bullet_rect.width
+    low_right_bullet_y = bullet_rect.y + bullet_rect.height
+    upp_left_ship_x = ship_rect.x
+    upp_left_ship_y = ship_rect.y
+    low_right_ship_x = ship_rect.x + ship_rect.width
+    low_right_ship_y = ship_rect.y + ship_rect.height
+    if (upp_left_bullet_x >= low_right_ship_x or low_right_bullet_x <= upp_left_ship_x) and (upp_left_bullet_y <= low_right_ship_y or low_right_bullet_y >= upp_left_ship_y):
+        return 0
+    return 1
+
+
+def collisions(enemies, ship):
+    tmp_bullets = []
+    tmp_enemies = []
+    # for bullet in ship.bullets:
+    #     flag = True
+    #     for enemy in enemies:
+    #         if collide(bullet.body, pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)):
+    #             flag = False
+    #             break
+    #         tmp_enemies.append(enemy)
+    #         tmp_bullets.append(bullet)
+    #     if flag:
+    i, j = 0, 0
+    while i < len(ship.bullets):
+        j = 0
+        while j < len(enemies):
+            bullet = ship.bullets[i]
+            enemy = enemies[j]
+            if collide(bullet.body, pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)):
+                del ship.bullets[i]
+                enemies[j].is_alive = False
+                # enemies[j].color = (1, 1, 1)
+                i -= 1
+                j -= 1
+                break
+            j += 1
+        i += 1
+
+    i = 0
+    for enemy in enemies:
+        while i < len(enemy.bullets):
+            bullet = enemy.bullets[i]
+            if collide(bullet.body, pygame.Rect(ship.x, ship.y, ship.width, ship.height)):
+                del enemy.bullets[i]
+                ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                return enemies, ship
+                # i -= 1
+            i += 1
+    return enemies, ship
 
 
 def main():
@@ -26,6 +83,7 @@ def main():
     ship = Ship(ship_x_value, ship_y_value, ship_height, ship_width, -1, ship_color, world)
     enemy = Ship(0, 0, ship_height, ship_width, 1, enemy_color, world)
     enemy.change_bullet_color((255, 100, 0))
+    enemies = [enemy]
 
     count_frames = 1
     while True:
@@ -57,22 +115,41 @@ def main():
             if keys_pressed[pygame.K_s] or keys_pressed[pygame.K_DOWN]:
                 ship.move_down()
 
+            enemies, ship = collisions(enemies, ship)
+
+            pygame.draw.rect(window, background_color, border)
+            for enemy in enemies:
+                enemy.bullets_move()
+                if enemy.is_alive:
+                    if not count_frames:
+                        enemy.create_bullet()
+                    enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
+                    pygame.draw.rect(window, enemy.color, enemy_rect)
+                for bullet in enemy.bullets:
+                    pygame.draw.rect(window, bullet.color, bullet.body)
+
+            i = 0
+            while i < len(enemies):
+                if not enemies[i].is_alive and len(enemies[i].bullets):
+                    del enemies[i]
+                    i -= 1
+                i += 1
+
             ship.bullets_move()
-            enemy.bullets_move()
 
             if not count_frames:
                 ship.create_bullet()
-                enemy.create_bullet()
+                # enemy.create_bullet()
 
             ship_rect = pygame.Rect(ship.x, ship.y, ship.width, ship.height)
-            enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
-            pygame.draw.rect(window, background_color, border)
+            # enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
+            # pygame.draw.rect(window, background_color, border)
             pygame.draw.rect(window, ship.color, ship_rect)
-            pygame.draw.rect(window, enemy.color, enemy_rect)
+            # pygame.draw.rect(window, enemy.color, enemy_rect)
             for bullet in ship.bullets:
                 pygame.draw.rect(window, bullet.color, bullet.body)
-            for bullet in enemy.bullets:
-                pygame.draw.rect(window, bullet.color, bullet.body)
+            # for bullet in enemy.bullets:
+            #     pygame.draw.rect(window, bullet.color, bullet.body)
 
             pygame.display.update()
 

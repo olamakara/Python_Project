@@ -17,6 +17,7 @@ class Ship:
         self.bullet_width = 10
         self.bullet_color = (0, 195, 255)
         self.bullet_velocity = 10
+        self.is_alive = True
 
     def move_left(self):
         self.x -= self.x_velocity
