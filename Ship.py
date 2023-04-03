@@ -21,6 +21,7 @@ class Ship:
         self.health_points = 999999
         self.points = 0
         self.award = 100
+        self.bullet_ratio = 25
 
     def move_left(self):
         self.x -= self.x_velocity
