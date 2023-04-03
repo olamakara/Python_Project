@@ -18,6 +18,9 @@ class Ship:
         self.bullet_color = (0, 195, 255)
         self.bullet_velocity = 10
         self.is_alive = True
+        self.health_points = 999999
+        self.points = 0
+        self.award = 100
 
     def move_left(self):
         self.x -= self.x_velocity
@@ -48,7 +51,9 @@ class Ship:
         tmp = []
         for bullet in self.bullets:
             bullet.body.y -= bullet.velocity
-            if bullet.body.y >= -bullet.body.height:
+            if bullet.body.y <= -bullet.body.height or  bullet.body.y > self.world.height:
+                pass
+            else:
                 tmp.append(bullet)
         self.bullets = tmp[:]
 

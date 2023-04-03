@@ -15,31 +15,25 @@ bullet_ratio = 25
 
 
 def collide(bullet_rect, ship_rect):
-    upp_left_bullet_x = bullet_rect.x
-    upp_left_bullet_y = bullet_rect.y
-    low_right_bullet_x = bullet_rect.x + bullet_rect.width
-    low_right_bullet_y = bullet_rect.y + bullet_rect.height
-    upp_left_ship_x = ship_rect.x
-    upp_left_ship_y = ship_rect.y
-    low_right_ship_x = ship_rect.x + ship_rect.width
-    low_right_ship_y = ship_rect.y + ship_rect.height
-    if (upp_left_bullet_x >= low_right_ship_x or low_right_bullet_x <= upp_left_ship_x) and (upp_left_bullet_y <= low_right_ship_y or low_right_bullet_y >= upp_left_ship_y):
-        return 0
-    return 1
+    bullet_left = bullet_rect.x
+    bullet_top = bullet_rect.y
+    bullet_right = bullet_rect.x + bullet_rect.width
+    bullet_bottom = bullet_rect.y + bullet_rect.height
+    ship_left = ship_rect.x
+    ship_top = ship_rect.y
+    ship_right = ship_rect.x + ship_rect.width
+    ship_bottom = ship_rect.y + ship_rect.height
+
+    if (ship_bottom > bullet_top > ship_top or ship_bottom > bullet_bottom > ship_top) and\
+       (ship_left < bullet_left < ship_right or ship_left < bullet_right < ship_right):
+        return 1
+    # if ((bullet_left >= ship_right or bullet_right <= ship_left) and (bullet_top <= ship_bottom or bullet_bottom >= ship_top)):
+    #
+    #     return 0
+    return 0
 
 
 def collisions(enemies, ship):
-    tmp_bullets = []
-    tmp_enemies = []
-    # for bullet in ship.bullets:
-    #     flag = True
-    #     for enemy in enemies:
-    #         if collide(bullet.body, pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)):
-    #             flag = False
-    #             break
-    #         tmp_enemies.append(enemy)
-    #         tmp_bullets.append(bullet)
-    #     if flag:
     i, j = 0, 0
     while i < len(ship.bullets):
         j = 0
@@ -49,6 +43,7 @@ def collisions(enemies, ship):
             if collide(bullet.body, pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)):
                 del ship.bullets[i]
                 enemies[j].is_alive = False
+                ship.points += enemy.award
                 # enemies[j].color = (1, 1, 1)
                 i -= 1
                 j -= 1
@@ -58,14 +53,15 @@ def collisions(enemies, ship):
 
     i = 0
     for enemy in enemies:
-        while i < len(enemy.bullets):
-            bullet = enemy.bullets[i]
-            if collide(bullet.body, pygame.Rect(ship.x, ship.y, ship.width, ship.height)):
-                del enemy.bullets[i]
-                ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                return enemies, ship
-                # i -= 1
-            i += 1
+        if enemy.is_alive:
+            while i < len(enemy.bullets):
+                bullet = enemy.bullets[i]
+                if collide(bullet.body, pygame.Rect(ship.x, ship.y, ship.width, ship.height)):
+                    del enemy.bullets[i]
+                    ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    return enemies, ship
+                    # i -= 1
+                i += 1
     return enemies, ship
 
 
@@ -81,7 +77,7 @@ def main():
 
     world = World(window_height, window_width)
     ship = Ship(ship_x_value, ship_y_value, ship_height, ship_width, -1, ship_color, world)
-    enemy = Ship(0, 0, ship_height, ship_width, 1, enemy_color, world)
+    enemy = Ship(100, 100, ship_height, ship_width, 1, enemy_color, world)
     enemy.change_bullet_color((255, 100, 0))
     enemies = [enemy]
 
@@ -130,7 +126,7 @@ def main():
 
             i = 0
             while i < len(enemies):
-                if not enemies[i].is_alive and len(enemies[i].bullets):
+                if not enemies[i].is_alive and not len(enemies[i].bullets):
                     del enemies[i]
                     i -= 1
                 i += 1
