@@ -19,7 +19,6 @@ star_height = 2
 star_color = (255, 255, 255)
 
 
-
 def collide(bullet_rect, ship_rect):
     bullet_left = bullet_rect.x
     bullet_top = bullet_rect.y
@@ -48,6 +47,7 @@ def collisions(enemies, ship, gifts):
             enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
             if collide(enemy_rect, ship_rect):
                 enemy.is_alive = False
+                ship.points += enemy.award
                 ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                 return enemies, ship, gifts
         i += 1
@@ -121,6 +121,7 @@ def main():
     is_running = True
     fps = 60
     gift_ratio = 100
+    enemy_ratio = 450
 
     world = World(window_height, window_width)
     ship = Ship(ship_x_value, ship_y_value, ship_height, ship_width, -1, ship_color, world)
@@ -165,12 +166,29 @@ def main():
 
             enemies, ship, gifts = collisions(enemies, ship, gifts)
 
+            if count_frames % enemy_ratio == 0:
+                enemy_ratio = random.randint(100, 500)
+                while True:
+                    tmp_x = random.randint(0, window_width - ship_width)
+                    tmp_y = random.randint(0, window_height // 2)
+                    flag = True
+                    for enemy in enemies:
+                        if collide(enemy, pygame.Rect(tmp_x, tmp_y, ship_width, ship_height)):
+                            flag = False
+                            break
+                    if flag:
+                        new_enemy = Ship(tmp_x, tmp_y, ship_height, ship_width, 1, enemy_color, world)
+                        new_enemy.bullet_velocity = 5
+                        new_enemy.bullet_ratio = 50
+                        new_enemy.bullet_color = (255, 100, 0)
+                        enemies.append(new_enemy)
+                        break
+
             if count_frames % gift_ratio == 0:
                 gifts = spawn_gift(gifts, world)
                 gift_ratio = random.randint(100, 1000)
 
             pygame.draw.rect(window, background_color, border)
-
 
             tmp = []
             for star in background_stars:
@@ -179,7 +197,6 @@ def main():
                     tmp.append(star)
                     pygame.draw.rect(window, star_color, star[0])
             background_stars = tmp[:]
-
 
             tmp = []
             for gift in gifts:
@@ -197,7 +214,6 @@ def main():
                     pygame.draw.rect(window, enemy.color, enemy_rect)
                 for bullet in enemy.bullets:
                     pygame.draw.rect(window, bullet.color, bullet.body)
-
 
             i = 0
             while i < len(enemies):
@@ -221,6 +237,16 @@ def main():
                 pygame.draw.rect(window, bullet.color, bullet.body)
             # for bullet in enemy.bullets:
             #     pygame.draw.rect(window, bullet.color, bullet.body)
+
+            pygame.font.init()
+            x = world.width // 2
+            y = 8
+
+            font = pygame.font.Font('freesansbold.ttf', 18)
+            text = font.render(str(ship.points), True, (255, 255, 255), (8, 17, 53))
+            textRect = text.get_rect()
+            textRect.center = (x, y)
+            window.blit(text, textRect)
 
             pygame.display.update()
 
