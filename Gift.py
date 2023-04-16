@@ -15,8 +15,8 @@ class Gift:
         self.velocity = velocity
         self.value = value
         self.gift_type = GiftType(gift_type)
-        self.world = world
         self.color = (255, 190, 20)
+        self.world = world
 
     def move(self):
         self.body.y += self.velocity

@@ -52,7 +52,7 @@ class Ship:
         tmp = []
         for bullet in self.bullets:
             bullet.body.y -= bullet.velocity
-            if bullet.body.y <= -bullet.body.height or  bullet.body.y > self.world.height:
+            if bullet.body.y <= -bullet.body.height or bullet.body.y > self.world.height:
                 pass
             else:
                 tmp.append(bullet)
