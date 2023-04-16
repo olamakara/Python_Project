@@ -30,7 +30,7 @@ class Ship:
         self.points = 0
         self.award = 100
         self.bullet_ratio = 80
-        self.bullet_type = BulletType.TWO
+        self.bullet_type = BulletType.ONE
 
     def move_left(self):
         self.x -= self.x_velocity
@@ -48,6 +48,14 @@ class Ship:
         self.y += self.x_velocity
         self.y = min(self.world.height - self.height - 5, self.y)
 
+    def upgrade_bullet_type(self):
+        if self.bullet_type == BulletType.ONE:
+            self.bullet_type = BulletType.TWO
+        elif self.bullet_type == BulletType.TWO:
+            self.bullet_type = BulletType.THREE
+        elif self.bullet_type == BulletType.THREE:
+            self.bullet_type = BulletType.THREE_WIDE
+
     def create_bullet(self):
 
         y = self.y + self.direction * self.bullet_height
@@ -61,7 +69,7 @@ class Ship:
             bullet = Bullet(x, y, self.bullet_height, self.bullet_width, 0, velocity, self.bullet_color)
             self.bullets.append(bullet)
 
-        if self.bullet_type == BulletType.TWO:
+        elif self.bullet_type == BulletType.TWO:
 
             x1 = x - self.bullet_width
             x2 = x + self.bullet_width
@@ -73,7 +81,7 @@ class Ship:
             bullet = Bullet(x2, y, self.bullet_height, self.bullet_width, 0, velocity, self.bullet_color)
             self.bullets.append(bullet)
 
-        if self.bullet_type == BulletType.THREE:
+        elif self.bullet_type == BulletType.THREE:
 
             x1 = x - self.bullet_width - 8
             x2 = x + self.bullet_width + 8
@@ -87,7 +95,7 @@ class Ship:
             bullet = Bullet(x, y, self.bullet_height, self.bullet_width, 0, velocity, self.bullet_color)
             self.bullets.append(bullet)
 
-        if self.bullet_type == BulletType.THREE_WIDE:
+        elif self.bullet_type == BulletType.THREE_WIDE:
 
             x1 = x - self.bullet_width - 8
             x2 = x + self.bullet_width + 8

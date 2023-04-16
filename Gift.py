@@ -1,9 +1,11 @@
 import pygame
 from enum import Enum
 
+
+
 class GiftType(Enum):
     SPEED = 1
-    BULLET_SPEED = 2
+    BULLET_VELOCITY = 2
     BULLET_COLOR = 3
     BULLET_RATIO = 4
     WEAPON_UPGRADE = 5

@@ -92,6 +92,7 @@ def main():
 
             ship_rect = pygame.Rect(world.ship.x, world.ship.y, world.ship.width, world.ship.height)
             pygame.draw.rect(world.display.window, world.ship.color, ship_rect)
+
             for bullet in world.ship.bullets:
                 pygame.draw.rect(window, bullet.color, bullet.body)
 
@@ -106,8 +107,7 @@ def main():
             window.blit(text, text_rect)
 
             pygame.display.update()
-            for enemy in world.enemies:
-                print(len(enemy.bullets))
+
 
 if __name__ == "__main__":
     main()

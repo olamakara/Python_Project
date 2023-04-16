@@ -1,8 +1,13 @@
 import random
 from Gift import Gift
 import pygame
-
+from Gift import GiftType
+from Ship import BulletType
 from Ship import Ship
+
+MAX_SPEED = 30
+MAX_BULLET_VELOCITY = 25
+MIN_BULLET_RATIO = 10
 
 
 def collide(rect1, rect2):
@@ -93,10 +98,30 @@ class World:
         i = 0
         while i < len(self.gifts):
             if collide(self.gifts[i].body, ship_rect):
+                self.upgrade_ship(self.gifts[i])
                 del self.gifts[i]
                 i -= 1
             i += 1
         return
+
+    def upgrade_ship(self, gift):
+        print(gift.gift_type)
+        if gift.gift_type == GiftType.SPEED and self.ship.x_velocity < MAX_SPEED:
+            self.ship.x_velocity += gift.value
+            self.ship.y_velocity += gift.value
+
+        elif gift.gift_type == GiftType.BULLET_VELOCITY and self.ship.bullet_velocity < MAX_BULLET_VELOCITY:
+            self.ship.bullet_velocity += gift.value
+
+        elif gift.gift_type == GiftType.BULLET_COLOR:
+            self.ship.bullet_color = gift.value
+
+        elif gift.gift_type == GiftType.BULLET_RATIO and self.ship.bullet_ratio > MIN_BULLET_RATIO:
+            self.ship.bullet_ratio -= gift.value
+
+        elif gift.gift_type == GiftType.WEAPON_UPGRADE:
+            self.ship.upgrade_bullet_type()
+
 
     def spawn_gift(self):
 
@@ -109,9 +134,10 @@ class World:
         if gift_type == 3:
             value = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
         if gift_type == 4:
-            value = random.randint(1, 20)
+            value = random.randint(1, 5)
         if gift_type == 5:
             value = 1
+
         x = random.randint(0, self.width - self.gift_width)
         velocity = random.randint(2, 8)
         gift = Gift(x, self.gift_height, self.gift_height, self.gift_width, velocity, value, gift_type, self)
