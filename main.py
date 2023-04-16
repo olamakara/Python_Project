@@ -1,6 +1,8 @@
 import random
-
 import pygame
+import csv
+import pandas as pd
+
 
 from Display import Display
 from Gift import Gift
@@ -14,12 +16,30 @@ window = display.window
 border = pygame.Rect(0, 0, window_width, window_height)
 
 
+def save_score(row):
+    f = open('scores.csv', 'a')
+    writer = csv.writer(f)
+    writer.writerow(row)
+    f.close()
+
+
+def get_max_score():
+    max_score = 0
+    with open("scores.csv", 'r') as file:
+        csv_reader = csv.reader(file, delimiter=':')
+        for row in csv_reader:
+            if row:
+                max_score = max(max_score, int(row[0]))
+    return max_score
+
+
 def main():
+    write_to_csv = False
     clock = pygame.time.Clock()
     fps = 60
     is_running = True
     gift_ratio = 100
-    enemy_ratio = 450
+    enemy_ratio = 40
     world = World(window_height, window_width, display)
 
     count_frames = 1
@@ -56,8 +76,8 @@ def main():
             world.collisions()
 
             if count_frames % enemy_ratio == 0:
-                enemy_ratio = random.randint(100, 500)
-                world.spawn_random_enemy()
+                # enemy_ratio = random.randint(100, 500)
+                world.spawn_enemy()
 
             if count_frames % gift_ratio == 0:
                 gift_ratio = random.randint(100, 1000)
@@ -65,6 +85,7 @@ def main():
 
             pygame.draw.rect(world.display.window, world.background_color, border)
 
+            world.move_enemies()
             world.move_stars()
             world.move_gifts()
 
@@ -101,12 +122,28 @@ def main():
             y = 8
 
             font = pygame.font.Font('freesansbold.ttf', 18)
-            text = font.render(str(world.ship.points), True, (255, 255, 255), (8, 17, 53))
+
+            text = font.render("SCORE " + str(world.ship.points), True, (255, 255, 255), (8, 17, 53))
             text_rect = text.get_rect()
             text_rect.center = (x, y)
             window.blit(text, text_rect)
 
+            x = world.width - 100
+            text = font.render("MAX SCORE " + str(get_max_score()), True, (255, 255, 255), (8, 17, 53))
+            text_rect = text.get_rect()
+            text_rect.center = (x, y)
+            window.blit(text, text_rect)
+
+            if world.ship.health_points <= 0:
+                is_running = False
+                write_to_csv = True
+
             pygame.display.update()
+
+        if not is_running and write_to_csv:
+            new_row = [str(world.ship.points)]
+            save_score(new_row)
+            write_to_csv = False
 
 
 if __name__ == "__main__":

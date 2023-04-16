@@ -51,6 +51,7 @@ class World:
         self.ship = Ship(self.ship_x_value, self.ship_y_value, self.ship_height, self.ship_width, -1, self.ship_color, self)
         self.ship.bullet_ratio = 25
         self.ship.bullet_velocity = 10
+        self.enemy_velocity = 3
 
     def collisions(self):
         ship_rect = pygame.Rect(self.ship.x, self.ship.y, self.ship.width, self.ship.height)
@@ -63,7 +64,8 @@ class World:
                     enemy.is_alive = False
                     self.ship.points += enemy.award
                     self.ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    return
+                    self.ship.health_points -= 1
+                    # return
             i += 1
 
         i, j = 0, 0
@@ -88,11 +90,11 @@ class World:
         for enemy in self.enemies:
             while i < len(enemy.bullets):
                 bullet = enemy.bullets[i]
-                bullet.color=(255,255,255)
+                # bullet.color = (255, 255, 255)
                 if collide(bullet.body, ship_rect):
                     del enemy.bullets[i]
                     self.ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-
+                    self.ship.health_points -= 1
                     i -= 1
                 i += 1
         i = 0
@@ -102,7 +104,6 @@ class World:
                 del self.gifts[i]
                 i -= 1
             i += 1
-        return
 
     def upgrade_ship(self, gift):
         print(gift.gift_type)
@@ -121,7 +122,6 @@ class World:
 
         elif gift.gift_type == GiftType.WEAPON_UPGRADE:
             self.ship.upgrade_bullet_type()
-
 
     def spawn_gift(self):
 
@@ -142,7 +142,6 @@ class World:
         velocity = random.randint(2, 8)
         gift = Gift(x, self.gift_height, self.gift_height, self.gift_width, velocity, value, gift_type, self)
         self.gifts.append(gift)
-        return
 
     def spawn_random_enemy(self):
         while True:
@@ -160,15 +159,12 @@ class World:
                 new_enemy.bullet_color = (255, 100, 0)
                 self.enemies.append(new_enemy)
                 break
-        return
-
 
     def spawn_enemy(self):
-        enemy = Ship(100, 100, self.ship_height, self.ship_width, 1, self.enemy_color, self)
+        enemy = Ship(10, 10, self.ship_height, self.ship_width, 1, self.enemy_color, self)
         enemy.change_bullet_color((255, 100, 0))
+        enemy.bullet_ratio = random.randint(200, 250)
         self.enemies.append(enemy)
-        return
-
 
     def create_star(self):
         new_star = pygame.Rect(random.randint(0, self.width), -self.height, self.star_width, self.star_height)
@@ -190,4 +186,28 @@ class World:
                 tmp.append(gift)
                 pygame.draw.rect(self.display.window, gift.color, gift.body)
         self.gifts = tmp[:]
+
+    def move_enemy(self, enemy):
+        if (enemy.y // 150) % 2 == 0:
+            if enemy.x > self.display.width - 2 * enemy.width:
+                enemy.x_velocity = 0
+                enemy.y_velocity = self.enemy_velocity
+            else:
+                enemy.x_velocity = self.enemy_velocity
+                enemy.y_velocity = 0
+        else:
+            if enemy.x < 2 * enemy.width:
+                enemy.x_velocity = 0
+                enemy.y_velocity = self.enemy_velocity
+            else:
+                enemy.x_velocity = -self.enemy_velocity
+                enemy.y_velocity = 0
+        enemy.x += enemy.x_velocity
+        enemy.y += enemy.y_velocity
+        if enemy.y >= self.display.height:
+            enemy.is_alive = False
+
+    def move_enemies(self):
+        for enemy in self.enemies:
+            self.move_enemy(enemy)
 
