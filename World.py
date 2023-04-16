@@ -44,6 +44,8 @@ class World:
         self.ship_color = (255, 255, 255)
         self.enemy_color = (255, 0, 100)
         self.ship = Ship(self.ship_x_value, self.ship_y_value, self.ship_height, self.ship_width, -1, self.ship_color, self)
+        self.ship.bullet_ratio = 25
+        self.ship.bullet_velocity = 10
 
     def collisions(self):
         ship_rect = pygame.Rect(self.ship.x, self.ship.y, self.ship.width, self.ship.height)
@@ -85,7 +87,7 @@ class World:
                 if collide(bullet.body, ship_rect):
                     del enemy.bullets[i]
                     self.ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    #return
+
                     i -= 1
                 i += 1
         i = 0
@@ -127,8 +129,8 @@ class World:
                     break
             if flag:
                 new_enemy = Ship(tmp_x, tmp_y, self.ship_height, self.ship_width, 1, self.enemy_color, self)
-                new_enemy.bullet_velocity = 5
-                new_enemy.bullet_ratio = 50
+                # new_enemy.bullet_velocity = 5
+                # new_enemy.bullet_ratio = self.
                 new_enemy.bullet_color = (255, 100, 0)
                 self.enemies.append(new_enemy)
                 break
