@@ -21,8 +21,8 @@ class Ship:
         self.color = color
         self.bullets = []
         self.world = world
-        self.bullet_height = 10
-        self.bullet_width = 10
+        self.bullet_height = 20
+        self.bullet_width = 15
         self.bullet_color = (255, 0, 0)
         self.bullet_velocity = 3
         self.is_alive = True
@@ -120,7 +120,7 @@ class Ship:
                 pass
             else:
                 tmp.append(bullet)
-        self.bullets = tmp[:]
+        self.bullets = tmp
 
     def change_bullet_color(self, color):
         self.bullet_color = color

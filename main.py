@@ -1,3 +1,4 @@
+import os
 import random
 import pygame
 import csv
@@ -14,6 +15,13 @@ window_height = 600
 display = Display(window_width, window_height)
 window = display.window
 border = pygame.Rect(0, 0, window_width, window_height)
+
+CHICKEN_IMAGE = pygame.image.load(os.path.join('Assets', 'kurczak.webp'))
+CHICKEN_IMAGE = pygame.transform.scale(CHICKEN_IMAGE, (70, 70))
+SPACECRAFT_IMAGE = pygame.image.load(os.path.join('Assets', 'spacecraft.png'))
+SPACECRAFT_IMAGE = pygame.transform.scale(SPACECRAFT_IMAGE, (70, 70))
+EGG_IMAGE = pygame.image.load(os.path.join('Assets', 'egg.webp'))
+EGG_IMAGE = pygame.transform.scale(EGG_IMAGE, (20, 25))
 
 
 def save_score(row):
@@ -77,7 +85,7 @@ def main():
 
             if count_frames % enemy_ratio == 0:
                 # enemy_ratio = random.randint(100, 500)
-                world.spawn_enemy()
+                world.spawn_enemy2()
 
             if count_frames % gift_ratio == 0:
                 gift_ratio = random.randint(100, 1000)
@@ -95,9 +103,11 @@ def main():
                     if count_frames % enemy.bullet_ratio == 0:
                         enemy.create_bullet()
                     enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
-                    pygame.draw.rect(world.display.window, enemy.color, enemy_rect)
+                    # pygame.draw.rect(world.display.window, enemy.color, enemy_rect)
+                    window.blit(CHICKEN_IMAGE, (enemy_rect.x - 13, enemy_rect.y - 13))
                 for bullet in enemy.bullets:
-                    pygame.draw.rect(world.display.window, bullet.color, bullet.body)
+                    window.blit(EGG_IMAGE, (bullet.body.x - 3, bullet.body.y - 3))
+                    # pygame.draw.rect(world.display.window, bullet.color, bullet.body)
 
             i = 0
             while i < len(world.enemies):
@@ -112,7 +122,8 @@ def main():
                 world.ship.create_bullet()
 
             ship_rect = pygame.Rect(world.ship.x, world.ship.y, world.ship.width, world.ship.height)
-            pygame.draw.rect(world.display.window, world.ship.color, ship_rect)
+            # pygame.draw.rect(world.display.window, world.ship.color, ship_rect)
+            window.blit(SPACECRAFT_IMAGE, (ship_rect.x - 13, ship_rect.y - 13))
 
             for bullet in world.ship.bullets:
                 pygame.draw.rect(window, bullet.color, bullet.body)

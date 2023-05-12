@@ -2,7 +2,6 @@ import pygame
 from enum import Enum
 
 
-
 class GiftType(Enum):
     SPEED = 1
     BULLET_VELOCITY = 2
@@ -12,13 +11,14 @@ class GiftType(Enum):
 
 
 class Gift:
-    def __init__(self, x, y, height, width, velocity, value, gift_type, world):
+    def __init__(self, x, y, height, width, velocity, value, gift_type, world, img):
         self.body = pygame.Rect(x, y, width, height)
         self.velocity = velocity
         self.value = value
-        self.gift_type = GiftType(gift_type)
+        self.gift_type = gift_type
         self.color = (255, 190, 20)
         self.world = world
+        self.img = img
 
     def move(self):
         self.body.y += self.velocity

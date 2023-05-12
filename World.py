@@ -1,9 +1,11 @@
+import os.path
 import random
 from Gift import Gift
 import pygame
 from Gift import GiftType
 from Ship import BulletType
 from Ship import Ship
+from enum import Enum
 
 MAX_SPEED = 30
 MAX_BULLET_VELOCITY = 25
@@ -24,6 +26,12 @@ def collide(rect1, rect2):
             (rect2_left < rect1_left < rect2_right or rect2_left < rect1_right < rect2_right):
         return 1
     return 0
+
+
+class MapSideType(Enum):
+    LEFT = 1
+    TOP = 2
+    RIGHT = 3
 
 
 class World:
@@ -49,6 +57,9 @@ class World:
         self.ship_color = (255, 255, 255)
         self.enemy_color = (255, 0, 100)
         self.ship = Ship(self.ship_x_value, self.ship_y_value, self.ship_height, self.ship_width, -1, self.ship_color, self)
+        self.ship.bullet_type = BulletType.THREE_WIDE
+        self.ship.bullet_height = 10
+        self.ship.bullet_width = 10
         self.ship.bullet_ratio = 25
         self.ship.bullet_velocity = 10
         self.enemy_velocity = 3
@@ -126,21 +137,30 @@ class World:
     def spawn_gift(self):
 
         value = 1
-        gift_type = random.randint(1, 5)
-        if gift_type == 1:
+        # gift_type = random.randint(1, 5)
+        gift_type = random.choice(list(GiftType))
+        img = ''
+        if gift_type == GiftType.SPEED:
             value = random.randint(1, 3)
-        if gift_type == 2:
+            img = 'gift_speed.webp'
+        elif gift_type == GiftType.BULLET_VELOCITY:
             value = random.randint(1, 5)
-        if gift_type == 3:
+            img = 'gift_bullet_velocity.webp'
+        elif gift_type == GiftType.BULLET_COLOR:
             value = (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
-        if gift_type == 4:
+            img = 'gift_color.webp'
+        elif gift_type == GiftType.BULLET_RATIO:
             value = random.randint(1, 5)
-        if gift_type == 5:
+            img = 'gift_bullet_ratio.webp'
+        elif gift_type == GiftType.WEAPON_UPGRADE:
             value = 1
+            img = 'gift_weapon.webp'
 
         x = random.randint(0, self.width - self.gift_width)
         velocity = random.randint(2, 8)
-        gift = Gift(x, self.gift_height, self.gift_height, self.gift_width, velocity, value, gift_type, self)
+        gift_image = pygame.image.load(os.path.join('Assets', img))
+        gift_image = pygame.transform.scale(gift_image, (35, 35))
+        gift = Gift(x, self.gift_height, self.gift_height, self.gift_width, velocity, value, gift_type, self, gift_image)
         self.gifts.append(gift)
 
     def spawn_random_enemy(self):
@@ -184,7 +204,8 @@ class World:
         for gift in self.gifts:
             if gift.move():
                 tmp.append(gift)
-                pygame.draw.rect(self.display.window, gift.color, gift.body)
+                # pygame.draw.rect(self.display.window, gift.color, gift.body)
+                self.display.window.blit(gift.img, (gift.body.x - 9, gift.body.y - 9))
         self.gifts = tmp[:]
 
     def move_enemy(self, enemy):
@@ -207,7 +228,37 @@ class World:
         if enemy.y >= self.display.height:
             enemy.is_alive = False
 
+    def spawn_enemy2(self):
+        map_side = random.choice(list(MapSideType))
+        x, y = 0, 0
+        x_velocity, y_velocity = random.randint(1, 5), random.randint(0, 3)
+        if map_side == MapSideType.LEFT:
+            x = -self.ship_width
+            y = random.randint(0, 0.25 * self.height)
+        elif map_side == MapSideType.TOP:
+            x = random.randint(-self.ship_width, self.width + self.ship_width)
+            y = -self.ship_height
+            x_velocity = random.randint(-5, 5)
+            y_velocity = random.randint(1, 3)
+        elif map_side == MapSideType.RIGHT:
+            x = self.width
+            y = random.randint(0, 0.25 * self.height)
+            x_velocity = -x_velocity
+
+        enemy = Ship(x, y, self.ship_height, self.ship_width, 1, self.enemy_color, self)
+        enemy.change_bullet_color((255, 100, 0))
+        enemy.bullet_ratio = random.randint(200, 250)
+        enemy.x_velocity = x_velocity
+        enemy.y_velocity = y_velocity
+        self.enemies.append(enemy)
+
+    def move_enemy2(self, enemy):
+        enemy.x += enemy.x_velocity
+        enemy.y += enemy.y_velocity
+        if enemy.y >= self.height or enemy.y < -enemy.height or enemy.x > self.width or enemy.x < -enemy.width:
+            enemy.is_alive = False
+
     def move_enemies(self):
         for enemy in self.enemies:
-            self.move_enemy(enemy)
+            self.move_enemy2(enemy)
 
