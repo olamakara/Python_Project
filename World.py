@@ -13,6 +13,8 @@ MIN_BULLET_RATIO = 10
 pygame.mixer.init()
 
 pygame.mixer.Channel(1).set_volume(0.1)
+pygame.mixer.Channel(0).set_volume(0.8)
+pygame.mixer.Channel(4).set_volume(0.1)
 pygame.mixer.Channel(1).play(pygame.mixer.Sound('Assets/main_sound.mp3'))
 # pygame.mixer.music.load('Assets/chicken_sound.mp3')
 
