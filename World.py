@@ -11,7 +11,10 @@ MAX_SPEED = 30
 MAX_BULLET_VELOCITY = 25
 MIN_BULLET_RATIO = 10
 pygame.mixer.init()
-pygame.mixer.music.load('Assets/chicken_sound.mp3')
+
+pygame.mixer.Channel(1).set_volume(0.1)
+pygame.mixer.Channel(1).play(pygame.mixer.Sound('Assets/main_sound.mp3'))
+# pygame.mixer.music.load('Assets/chicken_sound.mp3')
 
 
 def collide(rect1, rect2):
@@ -74,7 +77,8 @@ class World:
             if enemy.is_alive:
                 enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
                 if collide(enemy_rect, ship_rect):
-                    pygame.mixer.music.play()
+                    # pygame.mixer.music.play()
+                    pygame.mixer.Channel(0).play(pygame.mixer.Sound('Assets/chicken_sound.mp3'))
                     enemy.is_alive = False
                     self.ship.points += enemy.award
                     self.ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -89,7 +93,8 @@ class World:
                 enemy = self.enemies[j]
                 if enemy.is_alive:
                     if collide(bullet.body, pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)):
-                        pygame.mixer.music.play()
+                        # pygame.mixer.music.play()
+                        pygame.mixer.Channel(0).play(pygame.mixer.Sound('Assets/chicken_sound.mp3'))
                         del self.ship.bullets[i]
                         enemy.is_alive = False
                         self.ship.points += enemy.award
@@ -107,6 +112,7 @@ class World:
                 # bullet.color = (255, 255, 255)
                 if collide(bullet.body, ship_rect):
                     del enemy.bullets[i]
+                    pygame.mixer.Channel(3).play(pygame.mixer.Sound('Assets/splash_sound.mp3'))
                     self.ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                     self.ship.health_points -= 1
                     i -= 1
@@ -114,6 +120,7 @@ class World:
         i = 0
         while i < len(self.gifts):
             if collide(self.gifts[i].body, ship_rect):
+                pygame.mixer.Channel(4).play(pygame.mixer.Sound('Assets/gift_sound.mp3'))
                 self.upgrade_ship(self.gifts[i])
                 del self.gifts[i]
                 i -= 1

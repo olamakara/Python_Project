@@ -9,6 +9,8 @@ from Gift import Gift
 from Ship import Ship
 from World import World
 
+pygame.mixer.init()
+
 window_width = 1080
 window_height = 600
 display = Display(window_width, window_height)
@@ -146,6 +148,7 @@ def main():
 
             if world.ship.health_points <= 0:
                 is_running = False
+                pygame.mixer.Channel(4).play(pygame.mixer.Sound('Assets/game_over_sound.mp3'))
                 write_to_csv = True
 
             pygame.display.update()
