@@ -10,6 +10,8 @@ from enum import Enum
 MAX_SPEED = 30
 MAX_BULLET_VELOCITY = 25
 MIN_BULLET_RATIO = 10
+pygame.mixer.init()
+pygame.mixer.music.load('Assets/chicken_sound.mp3')
 
 
 def collide(rect1, rect2):
@@ -72,11 +74,11 @@ class World:
             if enemy.is_alive:
                 enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
                 if collide(enemy_rect, ship_rect):
+                    pygame.mixer.music.play()
                     enemy.is_alive = False
                     self.ship.points += enemy.award
                     self.ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                     self.ship.health_points -= 1
-                    # return
             i += 1
 
         i, j = 0, 0
@@ -87,6 +89,7 @@ class World:
                 enemy = self.enemies[j]
                 if enemy.is_alive:
                     if collide(bullet.body, pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)):
+                        pygame.mixer.music.play()
                         del self.ship.bullets[i]
                         enemy.is_alive = False
                         self.ship.points += enemy.award
@@ -261,4 +264,3 @@ class World:
     def move_enemies(self):
         for enemy in self.enemies:
             self.move_enemy2(enemy)
-

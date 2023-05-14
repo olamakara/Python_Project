@@ -2,7 +2,6 @@ import os
 import random
 import pygame
 import csv
-import pandas as pd
 
 
 from Display import Display
