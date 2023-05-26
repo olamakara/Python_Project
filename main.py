@@ -10,7 +10,7 @@ from Ship import Ship
 from World import World
 
 pygame.mixer.init()
-
+pygame.mixer.Channel(2).set_volume(0.1)
 window_width = 1080
 window_height = 600
 display = Display(window_width, window_height)
@@ -23,6 +23,8 @@ SPACECRAFT_IMAGE = pygame.image.load(os.path.join('Assets', 'spacecraft.png'))
 SPACECRAFT_IMAGE = pygame.transform.scale(SPACECRAFT_IMAGE, (70, 70))
 EGG_IMAGE = pygame.image.load(os.path.join('Assets', 'egg.webp'))
 EGG_IMAGE = pygame.transform.scale(EGG_IMAGE, (20, 25))
+BOSS2_IMAGE = pygame.image.load(os.path.join('Assets', 'boss2.png'))
+BOSS2_IMAGE = pygame.transform.scale(BOSS2_IMAGE, (200, 200))
 
 
 def save_score(row):
@@ -44,6 +46,7 @@ def main():
 
     start_over = False
 
+
     while True:
         write_to_csv = False
         clock = pygame.time.Clock()
@@ -51,8 +54,11 @@ def main():
         is_running = True
         gift_ratio = 100
         enemy_ratio = 40
+        boss_bullet_ratio = 20
         world = World(window_height, window_width, display)
         scores = get_scores()
+        world.create_boss()
+        boss = world.boss
 
         while not start_over:
             clock.tick(fps)
@@ -109,9 +115,9 @@ def main():
 
                 world.collisions()
 
-                if count_frames % enemy_ratio == 0:
-                    # enemy_ratio = random.randint(100, 500)
-                    world.spawn_enemy2()
+                # if count_frames % enemy_ratio == 0:
+                #     # enemy_ratio = random.randint(100, 500)
+                #     world.spawn_enemy2()
 
                 if count_frames % gift_ratio == 0:
                     gift_ratio = random.randint(100, 1000)
@@ -120,6 +126,7 @@ def main():
                 pygame.draw.rect(world.display.window, world.background_color, border)
 
                 world.move_enemies()
+                world.move_boss()
                 world.move_stars()
                 world.move_gifts()
 
@@ -146,6 +153,21 @@ def main():
 
                 if count_frames % world.ship.bullet_ratio == 0:
                     world.ship.create_bullet()
+                    pygame.mixer.Channel(2).play(pygame.mixer.Sound('Assets/blaster_sound.mp3'))
+
+
+                if boss.is_alive:
+                    boss_rect = pygame.Rect(boss.x, boss.y, boss.width, boss.height)
+                    pygame.draw.rect(world.display.window, boss.color, boss_rect)
+                    window.blit(BOSS2_IMAGE, (boss.x - 28, boss.y - 73))
+
+                    if count_frames % boss_bullet_ratio == 0:
+                        boss.create_bullet()
+
+                    for bullet in boss.bullets:
+                        boss.bullets_move()
+                        pygame.draw.rect(window, bullet.color, bullet.body)
+
 
                 ship_rect = pygame.Rect(world.ship.x, world.ship.y, world.ship.width, world.ship.height)
                 # pygame.draw.rect(world.display.window, world.ship.color, ship_rect)
@@ -153,6 +175,20 @@ def main():
 
                 for bullet in world.ship.bullets:
                     pygame.draw.rect(window, bullet.color, bullet.body)
+
+
+
+                # for enemy in world.enemies:
+                #     enemy.bullets_move()
+                #     if enemy.is_alive:
+                #         if count_frames % enemy.bullet_ratio == 0:
+                #             enemy.create_bullet()
+                #         enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
+                #         # pygame.draw.rect(world.display.window, enemy.color, enemy_rect)
+                #         window.blit(CHICKEN_IMAGE, (enemy_rect.x - 13, enemy_rect.y - 13))
+                #     for bullet in enemy.bullets:
+                #         window.blit(EGG_IMAGE, (bullet.body.x - 3, bullet.body.y - 3))
+                #         # pygame.draw
 
                 pygame.font.init()
                 x = world.width // 2

@@ -4,8 +4,8 @@ from Bullet import Bullet
 from enum import Enum
 
 
-pygame.mixer.init()
-pygame.mixer.Channel(2).set_volume(0.1)
+
+
 
 
 class BulletType(Enum):
@@ -115,7 +115,7 @@ class Ship:
             bullet = Bullet(x, y, self.bullet_height, self.bullet_width, 0, velocity, self.bullet_color)
             self.bullets.append(bullet)
 
-        pygame.mixer.Channel(2).play(pygame.mixer.Sound('Assets/blaster_sound.mp3'))
+
 
     def bullets_move(self):
         tmp = []

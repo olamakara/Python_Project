@@ -39,6 +39,8 @@ class MapSideType(Enum):
     LEFT = 1
     TOP = 2
     RIGHT = 3
+    BOTTOM = 4
+
 
 
 class World:
@@ -47,6 +49,7 @@ class World:
         self.width = width
         self.enemies = []
         self.gifts = []
+        self.boss = None
         self.display = display
         self.gift_width = 20
         self.gifts_height = 20
@@ -72,7 +75,9 @@ class World:
         self.enemy_velocity = 3
 
     def collisions(self):
+        boss_rect = pygame.Rect(self.boss.x, self.boss.y, self.boss.width, self.boss.height)
         ship_rect = pygame.Rect(self.ship.x, self.ship.y, self.ship.width, self.ship.height)
+        boss = self.boss
         i = 0
         while i < len(self.enemies):
             enemy = self.enemies[i]
@@ -90,8 +95,9 @@ class World:
         i, j = 0, 0
         while i < len(self.ship.bullets):
             j = 0
+            bullet = self.ship.bullets[i]
+
             while j < len(self.enemies):
-                bullet = self.ship.bullets[i]
                 enemy = self.enemies[j]
                 if enemy.is_alive:
                     if collide(bullet.body, pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)):
@@ -105,6 +111,13 @@ class World:
                         j -= 1
                         break
                 j += 1
+            if boss.is_alive and collide(bullet.body, boss_rect):
+                self.boss.health_points -= 1
+                print(self.boss.health_points)
+                if self.boss.health_points <= 0:
+                    self.boss.is_alive = False
+                del self.ship.bullets[i]
+                i -= 1
             i += 1
 
         i = 0
@@ -119,7 +132,26 @@ class World:
                     self.ship.health_points -= 1
                     i -= 1
                 i += 1
+        if boss.is_alive and collide(boss_rect, ship_rect):
+            boss.health_points -= 1
+            self.ship.health_points -= 1
+            if boss.health_points <= 0:
+                boss.is_alive = False
+            if self.ship.health_points <= 0:
+                self.ship.is_alive = False
+
         i = 0
+        while i < len(boss.bullets):
+            bullet = boss.bullets[i]
+            if collide(bullet.body, ship_rect):
+                del boss.bullets[i]
+                pygame.mixer.Channel(3).play(pygame.mixer.Sound('Assets/splash_sound.mp3'))
+                self.ship.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                self.ship.health_points -= 1
+                i -= 1
+            i += 1
+        i = 0
+
         while i < len(self.gifts):
             if collide(self.gifts[i].body, ship_rect):
                 pygame.mixer.Channel(4).play(pygame.mixer.Sound('Assets/gift_sound.mp3'))
@@ -127,6 +159,12 @@ class World:
                 del self.gifts[i]
                 i -= 1
             i += 1
+
+
+
+
+
+
 
     def upgrade_ship(self, gift):
         print(gift.gift_type)
@@ -241,7 +279,10 @@ class World:
             enemy.is_alive = False
 
     def spawn_enemy2(self):
+
         map_side = random.choice(list(MapSideType))
+        while map_side == MapSideType.BOTTOM:
+            map_side = random.choice(list(MapSideType))
         x, y = 0, 0
         x_velocity, y_velocity = random.randint(1, 5), random.randint(0, 3)
         if map_side == MapSideType.LEFT:
@@ -273,3 +314,43 @@ class World:
     def move_enemies(self):
         for enemy in self.enemies:
             self.move_enemy2(enemy)
+
+    def create_boss(self):
+        width = 150
+        height = 120
+        self.boss = Ship((self.width - width) // 2, height, height, width, 1, (255, 0, 0), self)
+        self.boss.award = 1000
+        self.boss.health_points = 5
+        self.boss.bullet_type = BulletType.THREE_WIDE
+
+    def change_boss_velocity(self, map_side):
+        x_velocity, y_velocity = random.randint(1, 5), random.randint(0, 3)
+        if map_side == MapSideType.BOTTOM:
+            y_velocity = -y_velocity
+        elif map_side == MapSideType.TOP:
+            x_velocity = random.randint(-5, 5)
+            y_velocity = random.randint(1, 3)
+        elif map_side == MapSideType.RIGHT:
+            y = random.randint(0, 0.25 * self.height)
+            x_velocity = -x_velocity
+        self.boss.x_velocity = x_velocity
+        self.boss.y_velocity = y_velocity
+
+    def move_boss(self):
+        boss = self.boss
+        boss.x += boss.x_velocity
+        boss.y += boss.y_velocity
+        if boss.y >= self.height - 3 * boss.height:
+            self.change_boss_velocity(MapSideType.BOTTOM)
+        elif boss.y < 40:
+            self.change_boss_velocity(MapSideType.TOP)
+        elif boss.x > self.width - boss.width - 40:
+            self.change_boss_velocity(MapSideType.RIGHT)
+        elif boss.x < 40:
+            self.change_boss_velocity(MapSideType.LEFT)
+
+
+# class MapSideType(Enum):
+#     LEFT = 1
+#     TOP = 2
+#     RIGHT = 3
