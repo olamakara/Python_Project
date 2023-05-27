@@ -43,6 +43,12 @@ class MapSideType(Enum):
     BOTTOM = 4
 
 
+class GamePhase(Enum):
+    ENEMIES1 = 1
+    ENEMIES2 = 2
+    BOSS = 3
+    BONUS = 4
+
 
 class World:
     def __init__(self, height, width, display):
@@ -77,6 +83,11 @@ class World:
         self.coins = []
         self.coin_height = 31
         self.coin_width = 31
+        self.game_phase = GamePhase.ENEMIES2
+        self.enemy_wave = 3
+        self.bonus_wave = 50
+        self.boss_health_points = 50
+
 
     def collisions(self):
         boss_rect = pygame.Rect(self.boss.x, self.boss.y, self.boss.width, self.boss.height)
@@ -100,7 +111,6 @@ class World:
         while i < len(self.ship.bullets):
             j = 0
             bullet = self.ship.bullets[i]
-
             while j < len(self.enemies):
                 enemy = self.enemies[j]
                 if enemy.is_alive:
@@ -115,13 +125,14 @@ class World:
                         j -= 1
                         break
                 j += 1
-            if boss.is_alive and collide(bullet.body, boss_rect):
-                self.boss.health_points -= 1
-                print(self.boss.health_points)
-                if self.boss.health_points <= 0:
-                    self.boss.is_alive = False
-                del self.ship.bullets[i]
-                i -= 1
+            if (self.game_phase == GamePhase.BOSS):
+                if boss.is_alive and collide(bullet.body, boss_rect):
+                    self.boss.health_points -= 1
+                    print(self.boss.health_points)
+                    if self.boss.health_points <= 0:
+                        self.boss.is_alive = False
+                    del self.ship.bullets[i]
+                    i -= 1
             i += 1
 
         i = 0
@@ -136,13 +147,14 @@ class World:
                     self.ship.health_points -= 1
                     i -= 1
                 i += 1
-        if boss.is_alive and collide(boss_rect, ship_rect):
-            boss.health_points -= 1
-            self.ship.health_points -= 1
-            if boss.health_points <= 0:
-                boss.is_alive = False
-            if self.ship.health_points <= 0:
-                self.ship.is_alive = False
+        if (self.game_phase == GamePhase.BOSS):
+            if boss.is_alive and collide(boss_rect, ship_rect):
+                boss.health_points -= 1
+                self.ship.health_points -= 1
+                if boss.health_points <= 0:
+                    boss.is_alive = False
+                if self.ship.health_points <= 0:
+                    self.ship.is_alive = False
 
         i = 0
         while i < len(boss.bullets):
@@ -164,14 +176,15 @@ class World:
                 i -= 1
             i += 1
 
-        i = 0
-        while i < len(self.coins):
-            if collide(self.coins[i][0], ship_rect):
-                pygame.mixer.Channel(4).play(pygame.mixer.Sound('Assets/gift_sound.mp3'))
-                self.ship.points += 100
-                del self.coins[i]
-                i -= 1
-            i += 1
+        if (self.game_phase == GamePhase.BONUS):
+            i = 0
+            while i < len(self.coins):
+                if collide(self.coins[i][0], ship_rect):
+                    pygame.mixer.Channel(4).play(pygame.mixer.Sound('Assets/gift_sound.mp3'))
+                    self.ship.points += 100
+                    del self.coins[i]
+                    i -= 1
+                i += 1
 
     def upgrade_ship(self, gift):
         print(gift.gift_type)
@@ -237,7 +250,7 @@ class World:
                 self.enemies.append(new_enemy)
                 break
 
-    def spawn_enemy(self):
+    def spawn_enemy1(self):
         enemy = Ship(10, 10, self.ship_height, self.ship_width, 1, self.enemy_color, self)
         enemy.change_bullet_color((255, 100, 0))
         enemy.bullet_ratio = random.randint(200, 250)
@@ -280,7 +293,7 @@ class World:
                 self.display.window.blit(gift.img, (gift.body.x - 9, gift.body.y - 9))
         self.gifts = tmp[:]
 
-    def move_enemy(self, enemy):
+    def move_enemy1(self, enemy):
         if (enemy.y // 150) % 2 == 0:
             if enemy.x > self.display.width - 2 * enemy.width:
                 enemy.x_velocity = 0
@@ -333,7 +346,11 @@ class World:
         if enemy.y >= self.height or enemy.y < -enemy.height or enemy.x > self.width or enemy.x < -enemy.width:
             enemy.is_alive = False
 
-    def move_enemies(self):
+    def move_enemies1(self):
+        for enemy in self.enemies:
+            self.move_enemy1(enemy)
+
+    def move_enemies2(self):
         for enemy in self.enemies:
             self.move_enemy2(enemy)
 
@@ -342,6 +359,7 @@ class World:
         height = 120
         self.boss = Ship((self.width - width) // 2, height, height, width, 1, (255, 0, 0), self)
         self.boss.award = 1000
+        # self.boss.health_points = self.boss_health_points
         self.boss.health_points = 5
         self.boss.bullet_type = BulletType.THREE_WIDE
 
@@ -371,8 +389,13 @@ class World:
         elif boss.x < 40:
             self.change_boss_velocity(MapSideType.LEFT)
 
-
-# class MapSideType(Enum):
-#     LEFT = 1
-#     TOP = 2
-#     RIGHT = 3
+    def change_phase(self):
+        phase = self.game_phase
+        if phase == GamePhase.ENEMIES1:
+            self.game_phase = GamePhase.ENEMIES2
+        elif phase == GamePhase.ENEMIES2:
+            self.game_phase = GamePhase.BOSS
+        elif phase == GamePhase.BOSS:
+            self.game_phase = GamePhase.BONUS
+        elif phase == GamePhase.BONUS:
+            self.game_phase = GamePhase.ENEMIES1
