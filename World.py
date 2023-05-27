@@ -83,7 +83,7 @@ class World:
         self.coins = []
         self.coin_height = 31
         self.coin_width = 31
-        self.game_phase = GamePhase.ENEMIES2
+        self.game_phase = GamePhase.BOSS
         self.enemy_wave = 3
         self.bonus_wave = 50
         self.boss_health_points = 50
@@ -359,9 +359,10 @@ class World:
         height = 120
         self.boss = Ship((self.width - width) // 2, height, height, width, 1, (255, 0, 0), self)
         self.boss.award = 1000
-        # self.boss.health_points = self.boss_health_points
-        self.boss.health_points = 5
+        self.boss.health_points = self.boss_health_points
         self.boss.bullet_type = BulletType.THREE_WIDE
+        self.boss.bullet_velocity = 1
+        self.boss.bullet_ratio = 80
 
     def change_boss_velocity(self, map_side):
         x_velocity, y_velocity = random.randint(1, 5), random.randint(0, 3)

@@ -175,13 +175,12 @@ def main():
 
                 elif world.game_phase == GamePhase.BOSS:
                     world.move_boss()
-                    print(len(boss.bullets))
                     if boss.is_alive:
                         boss_rect = pygame.Rect(boss.x, boss.y, boss.width, boss.height)
                         # pygame.draw.rect(world.display.window, boss.color, boss_rect)
                         window.blit(BOSS2_IMAGE, (boss.x - 28, boss.y - 73))
 
-                        if count_frames % boss_bullet_ratio == 0:
+                        if count_frames % boss.bullet_ratio == 0:
                             boss.create_bullet()
 
                     for bullet in boss.bullets:
@@ -189,7 +188,6 @@ def main():
                         pygame.draw.rect(window, bullet.color, bullet.body)
                     if not boss.is_alive and len(boss.bullets) == 0:
                         world.change_phase()
-                        print("ZXCASDSAds")
 
                 elif world.game_phase == GamePhase.BONUS:
                     print(len(boss.bullets))
