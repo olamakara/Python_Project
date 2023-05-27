@@ -27,6 +27,8 @@ BOSS2_IMAGE = pygame.image.load(os.path.join('Assets', 'boss2.png'))
 BOSS2_IMAGE = pygame.transform.scale(BOSS2_IMAGE, (200, 200))
 
 
+
+
 def save_score(row):
     f = open('scores.csv', 'a')
     writer = csv.writer(f)
@@ -91,6 +93,7 @@ def main():
                     break
             if count_frames % 2 == 0:
                 world.create_star()
+                world.create_coin()
 
             keys_pressed = pygame.key.get_pressed()
             if keys_pressed[pygame.K_p]:
@@ -128,8 +131,8 @@ def main():
                 world.move_enemies()
                 world.move_boss()
                 world.move_stars()
+                world.move_coins()
                 world.move_gifts()
-
                 for enemy in world.enemies:
                     enemy.bullets_move()
                     if enemy.is_alive:

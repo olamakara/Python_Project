@@ -10,8 +10,9 @@ from enum import Enum
 MAX_SPEED = 30
 MAX_BULLET_VELOCITY = 25
 MIN_BULLET_RATIO = 10
+COIN_IMAGE = pygame.image.load(os.path.join('Assets', 'coin.png'))
+COIN_IMAGE = pygame.transform.scale(COIN_IMAGE, (40, 40))
 pygame.mixer.init()
-
 pygame.mixer.Channel(1).set_volume(0.1)
 pygame.mixer.Channel(0).set_volume(0.8)
 pygame.mixer.Channel(4).set_volume(0.1)
@@ -73,6 +74,9 @@ class World:
         self.ship.bullet_ratio = 25
         self.ship.bullet_velocity = 10
         self.enemy_velocity = 3
+        self.coins = []
+        self.coin_height = 31
+        self.coin_width = 31
 
     def collisions(self):
         boss_rect = pygame.Rect(self.boss.x, self.boss.y, self.boss.width, self.boss.height)
@@ -160,11 +164,14 @@ class World:
                 i -= 1
             i += 1
 
-
-
-
-
-
+        i = 0
+        while i < len(self.coins):
+            if collide(self.coins[i][0], ship_rect):
+                pygame.mixer.Channel(4).play(pygame.mixer.Sound('Assets/gift_sound.mp3'))
+                self.ship.points += 100
+                del self.coins[i]
+                i -= 1
+            i += 1
 
     def upgrade_ship(self, gift):
         print(gift.gift_type)
@@ -240,6 +247,10 @@ class World:
         new_star = pygame.Rect(random.randint(0, self.width), -self.height, self.star_width, self.star_height)
         self.background_stars.append([new_star, random.randint(2, 12)])
 
+    def create_coin(self):
+        new_coin = pygame.Rect(random.randint(0, self.width), -self.height, self.coin_width, self.coin_height)
+        self.coins.append([new_coin, random.randint(2, 7)])
+
     def move_stars(self):
         tmp = []
         for star in self.background_stars:
@@ -247,7 +258,18 @@ class World:
             if star[0].y <= self.height:
                 tmp.append(star)
                 pygame.draw.rect(self.display.window, self.star_color, star[0])
+
         self.background_stars = tmp[:]
+
+    def move_coins(self):
+        tmp = []
+        for coin in self.coins:
+            coin[0].y += coin[1]
+            if coin[0].y <= self.height:
+                tmp.append(coin)
+                # pygame.draw.rect(self.display.window, (0,255,0), coin[0])
+                self.display.window.blit(COIN_IMAGE, (coin[0].x - 5, coin[0].y - 5))
+        self.coins = tmp[:]
 
     def move_gifts(self):
         tmp = []
