@@ -83,8 +83,8 @@ class World:
         self.coins = []
         self.coin_height = 31
         self.coin_width = 31
-        self.game_phase = GamePhase.BOSS
-        self.enemy_wave = 3
+        self.game_phase = GamePhase.ENEMIES1
+        self.enemy_wave = 300
         self.bonus_wave = 50
         self.boss_health_points = 50
 
@@ -147,6 +147,7 @@ class World:
                     self.ship.health_points -= 1
                     i -= 1
                 i += 1
+            i = 0
         if (self.game_phase == GamePhase.BOSS):
             if boss.is_alive and collide(boss_rect, ship_rect):
                 boss.health_points -= 1
