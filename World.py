@@ -17,6 +17,8 @@ pygame.mixer.Channel(1).set_volume(0.1)
 pygame.mixer.Channel(0).set_volume(0.8)
 pygame.mixer.Channel(4).set_volume(0.1)
 pygame.mixer.Channel(1).play(pygame.mixer.Sound('Assets/main_sound.mp3'))
+
+
 # pygame.mixer.music.load('Assets/chicken_sound.mp3')
 
 
@@ -74,7 +76,7 @@ class World:
         self.ship_color = (255, 255, 255)
         self.enemy_color = (255, 0, 100)
         self.ship = Ship(self.ship_x_value, self.ship_y_value, self.ship_height, self.ship_width, -1, self.ship_color, self)
-        self.ship.bullet_type = BulletType.THREE_WIDE
+        self.ship.bullet_type = BulletType.ONE
         self.ship.bullet_height = 10
         self.ship.bullet_width = 10
         self.ship.bullet_ratio = 25
@@ -84,10 +86,9 @@ class World:
         self.coin_height = 31
         self.coin_width = 31
         self.game_phase = GamePhase.ENEMIES1
-        self.enemy_wave = 300
+        self.enemy_wave = 30
         self.bonus_wave = 50
         self.boss_health_points = 50
-
 
     def collisions(self):
         boss_rect = pygame.Rect(self.boss.x, self.boss.y, self.boss.width, self.boss.height)
@@ -231,7 +232,8 @@ class World:
         velocity = random.randint(2, 8)
         gift_image = pygame.image.load(os.path.join('Assets', img))
         gift_image = pygame.transform.scale(gift_image, (35, 35))
-        gift = Gift(x, self.gift_height, self.gift_height, self.gift_width, velocity, value, gift_type, self, gift_image)
+        gift = Gift(x, self.gift_height, self.gift_height, self.gift_width, velocity, value, gift_type, self,
+                    gift_image)
         self.gifts.append(gift)
 
     def spawn_random_enemy(self):

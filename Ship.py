@@ -32,7 +32,7 @@ class Ship:
         self.bullet_color = (255, 0, 0)
         self.bullet_velocity = 3
         self.is_alive = True
-        self.health_points = 30000000
+        self.health_points = 3
         self.points = 0
         self.award = 100
         self.bullet_ratio = 80

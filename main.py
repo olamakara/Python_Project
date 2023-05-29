@@ -3,7 +3,6 @@ import random
 import pygame
 import csv
 
-
 from Display import Display
 from Gift import Gift
 from Ship import Ship
@@ -44,7 +43,6 @@ def get_scores():
 
 
 def main():
-
     start_over = False
 
     while True:
@@ -59,7 +57,6 @@ def main():
         scores = get_scores()
         world.create_boss()
 
-        
         object_counter = 0
 
         while not start_over:
@@ -74,8 +71,6 @@ def main():
             text_rect.center = (x, y)
             window.blit(text, text_rect)
             pygame.display.update()
-
-
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -122,8 +117,8 @@ def main():
 
                 pygame.draw.rect(world.display.window, world.background_color, border)
 
-                def handle_enemies():     
-                    nonlocal world   
+                def handle_enemies():
+                    nonlocal world
                     for enemy in world.enemies:
                         enemy.bullets_move()
                         if enemy.is_alive:
@@ -152,7 +147,7 @@ def main():
                         # enemy_ratio = random.randint(100, 500)
                         world.spawn_enemy1()
                         object_counter += 1
-                        
+
                     world.move_enemies1()
                     handle_enemies()
                     if not keep_spawning and len(world.enemies) == 0:
@@ -171,7 +166,7 @@ def main():
                         world.change_phase()
                         object_counter = 0
                         world.create_boss()
-
+                        world.enemy_wave += world.enemy_wave // 10
 
                 elif world.game_phase == GamePhase.BOSS:
                     world.move_boss()
@@ -188,6 +183,7 @@ def main():
                         pygame.draw.rect(window, bullet.color, bullet.body)
                     if not boss.is_alive and len(boss.bullets) == 0:
                         world.change_phase()
+                        world.boss_health_points += world.boss_health_points // 10
 
                 elif world.game_phase == GamePhase.BONUS:
                     print(len(boss.bullets))
