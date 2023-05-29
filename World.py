@@ -14,7 +14,7 @@ COIN_IMAGE = pygame.image.load(os.path.join('Assets', 'coin.png'))
 COIN_IMAGE = pygame.transform.scale(COIN_IMAGE, (40, 40))
 pygame.mixer.init()
 pygame.mixer.Channel(1).set_volume(0.1)
-pygame.mixer.Channel(0).set_volume(0.8)
+pygame.mixer.Channel(0).set_volume(0.2)
 pygame.mixer.Channel(4).set_volume(0.1)
 pygame.mixer.Channel(1).play(pygame.mixer.Sound('Assets/main_sound.mp3'))
 
